@@ -38,11 +38,12 @@ while True:
                 msg = fs.recvMsg()
                 if len(msg) == 0:
                     break
-                os.write(fd, msg.encode())
+                os.write(fd, msg)
             os.close(fd)
         except:
+            print("heres")
             fs.sendMsg("BAD")
 
-
-        conn.shutdown(socket.SHUT_WR)
+        print("Done with", addr)
+        conn.close()
 

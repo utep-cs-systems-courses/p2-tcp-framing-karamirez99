@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-
 # Echo client program
 import socket, sys, re, time
 import os
@@ -62,23 +61,26 @@ if delay != 0:
     time.sleep(delay)
     print("done sleeping")
 
+
+s.settimeout(5)
 #Attempt to send file given by input to output
 fs = FramedSocket(s)
 while 1:
     fs.sendMsg(paramMap["output"])
     data = fs.recvMsg()
-    print(data)
 
     if len(data) == 0:
         break
 
     if not "OK" in data.decode():
+        print("Couldnt do that. Heres the response")
+        print(data.decode())
         break
 
-    try:
+    print(data.decode())
 
+    try:
         fdIn = os.open(paramMap["input"], os.O_RDONLY)
-    
         os.close(0)
         os.dup(fdIn)
         os.close(fdIn)
@@ -89,12 +91,15 @@ while 1:
                 break
             fs.sendMsg(line)
 
+        while(data.decode() != "DONE" or data.decode() != "BAD"):
+            data = fs.recvMsg()
+
     except FileNotFoundError:
         print("{} could not be found".format(paramMap["input"]))
+    except socket.timeout:
+        pass
 
     break
 
-
-
-print("Zero length read.  Closing")
+print("Closing")
 s.close()
